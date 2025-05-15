@@ -7,6 +7,7 @@ import dev.langchain4j.service.Moderate
 import dev.langchain4j.service.ModerationException
 import dev.langchain4j.service.SystemMessage
 import dev.langchain4j.service.UserMessage
+import dev.langchain4j.service.V
 import io.quarkiverse.langchain4j.RegisterAiService
 import io.quarkiverse.langchain4j.sample.chatbot.tools.CurrentTime
 import io.quarkiverse.langchain4j.sample.chatbot.tools.CustomerCallbackScheduler
@@ -35,14 +36,15 @@ interface Assistant {
     @Moderate
     @Timeout(value = 60, unit = ChronoUnit.SECONDS)
     @Fallback(fallbackMethod = "chatFallback")
+    @UserMessage("User said: ```{{question}}```")
     fun chat(
         @MemoryId memoryId: ChatMemoryId,
-        @UserMessage question: Question
+        @V("question") question: Question
     ): Answer
 
     fun chatFallback(
         @MemoryId memoryId: ChatMemoryId,
-        @UserMessage question: Question,
+        @V("question") question: Question,
         cause: ModerationException
     ): Answer = Answer(
         message = """
@@ -56,7 +58,7 @@ interface Assistant {
 
     fun chatFallback(
         @MemoryId memoryId: ChatMemoryId,
-        @UserMessage question: Question,
+        @V("question") question: Question,
         exception: Exception
     ): Answer {
         Log.warn("Error while processing question", exception)
