@@ -9,6 +9,7 @@ import dev.langchain4j.service.SystemMessage
 import dev.langchain4j.service.UserMessage
 import dev.langchain4j.service.V
 import io.quarkiverse.langchain4j.RegisterAiService
+import io.quarkiverse.langchain4j.mcp.runtime.McpToolBox
 import io.quarkiverse.langchain4j.sample.chatbot.tools.CurrentTime
 import io.quarkiverse.langchain4j.sample.chatbot.tools.CustomerCallbackScheduler
 import io.quarkiverse.langchain4j.sample.chatbot.tools.MarketData
@@ -22,7 +23,7 @@ import java.time.temporal.ChronoUnit
 @RegisterAiService(
     tools = [
         MarketData::class,
-        CurrentTime::class,
+//        CurrentTime::class,
         CustomerCallbackScheduler::class
     ],
     // no need to declare a retrieval augmentor here, it is automatically generated and discovered
@@ -41,6 +42,28 @@ interface Assistant {
         @MemoryId memoryId: ChatMemoryId,
         @V("question") question: Question
     ): Answer
+
+    /*
+     * throws this if the signature does not have parameters
+     *
+     * Caused by: dev.langchain4j.service.IllegalConfigurationException: Method should have at least one argument. Offending method is 'io.quarkiverse.langchain4j.sample.chatbot.Assistant#useTimeServer'
+	at dev.langchain4j.service.IllegalConfigurationException.illegalConfiguration(IllegalConfigurationException.java:14)
+	at io.quarkiverse.langchain4j.deployment.ExceptionUtil.illegalConfigurationForMethod(ExceptionUtil.java:16)
+	at io.quarkiverse.langchain4j.deployment.AiServicesProcessor.gatherUserMessageInfo(AiServicesProcessor.java:1626)
+	at io.quarkiverse.langchain4j.deployment.AiServicesProcessor.gatherMethodMetadata(AiServicesProcessor.java:1363)
+	at io.quarkiverse.langchain4j.deployment.AiServicesProcessor.handleAiServices(AiServicesProcessor.java:1178)
+	at java.base/java.lang.invoke.MethodHandle.invokeWithArguments(MethodHandle.java:735)
+	at io.quarkus.deployment.ExtensionLoader$3.execute(ExtensionLoader.java:856)
+	at io.quarkus.builder.BuildContext.run(BuildContext.java:255)
+	at org.jboss.threads.ContextHandler$1.runWith(ContextHandler.java:18)
+	at org.jboss.threads.EnhancedQueueExecutor$Task.doRunWith(EnhancedQueueExecutor.java:2675)
+	at org.jboss.threads.EnhancedQueueExecutor$Task.run(EnhancedQueueExecutor.java:2654)
+	at org.jboss.threads.EnhancedQueueExecutor.runThreadBody(EnhancedQueueExecutor.java:1627)
+
+     */
+    @McpToolBox("time")
+    fun useTimeServer(@V("question") question: Question
+    ): String
 
     fun chatFallback(
         @MemoryId memoryId: ChatMemoryId,
